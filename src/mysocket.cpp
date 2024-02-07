@@ -105,9 +105,9 @@ service &service::instance() {
     return instance;
 }
 
-void service::bind_wait(int port, callback_t callback, int threads_count, int active_sockets_count) {
+void service::bind_wait(int port, callback_t callback, int threads_count) {
     spdlog::debug(__FUNCTION__);
-    bind(port, callback, threads_count, active_sockets_count);
+    bind(port, callback, threads_count);
     wait();
 }
 
@@ -130,14 +130,13 @@ void service::close_wait() {
     wait();
 }
 
-void service::bind(int port, callback_t callback, int threads_count, int active_sockets_count) {
+void service::bind(int port, callback_t callback, int threads_count) {
     spdlog::debug(__FUNCTION__);
     close();
     threads_count = std::max(threads_count, 1);
-    active_sockets_count = std::max(active_sockets_count, threads_count);
     acceptor = std::make_shared<boost_acceptor_t>(context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 
-    for (auto i = 0; i < active_sockets_count; ++i) {
+    for (auto i = 0; i < threads_count; ++i) {
         using namespace boost::placeholders;
         int index = next_index++;
         auto handle = std::make_shared<::app::session>(index, context);

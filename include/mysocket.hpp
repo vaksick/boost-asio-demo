@@ -44,8 +44,8 @@ namespace app {
     public:
         ~service();
         //
-        void bind(int, callback_t, int threads_count = 2, int active_sockets_count = -1);
-        void bind_wait(int, callback_t, int threads_count = 2, int active_sockets_count = -1);
+        void bind(int, callback_t, int threads_count = 2);
+        void bind_wait(int, callback_t, int threads_count = 2);
         void wait();
         void close();
         void close_wait();
