@@ -45,7 +45,11 @@ size_t session::async_size_data(const boost::system::error_code &err, size_t byt
 
 void session::async_read(std::shared_ptr<session> self, callback_t callback, const boost::system::error_code &err, size_t bytes_count) {
     spdlog::debug("{}:{}: size = {}", __FUNCTION__, index, bytes_count);
-    callback(self);
+    if (err) {
+        spdlog::error("err[{}]: {}", index, err.message());
+    } else {
+        callback(self);
+    }
 }
 
 std::string session::to_string() const {
