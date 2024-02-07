@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.28)
 
 project(service)
 
@@ -15,7 +15,7 @@ FetchContent_Declare(spdlog
 FetchContent_MakeAvailable(spdlog)
 
 
-find_package(Boost 1.74.0 REQUIRED thread system)
+find_package(Boost REQUIRED thread system)
 find_package(spdlog REQUIRED)
 
 include_directories(

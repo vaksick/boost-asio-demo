@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/asio.hpp>
+#include <boost/asio/cancellation_signal.hpp>
 #include <boost/thread.hpp>
 #include <functional>
 #include <memory>
@@ -18,17 +19,18 @@ namespace app {
         size_t async_size_data(const boost::system::error_code &err, size_t bytes_count);
         void async_read(std::shared_ptr<session>, callback_t, const boost::system::error_code &err, size_t bytes_count);
         void async_write(std::shared_ptr<session>, const boost::system::error_code &err, size_t bytes_count);
+
     public:
         const int index;
         session(int index, boost::asio::io_context &context);
         ~session();
         boost_socket_t &socket();
-        void _do(callback_t);
+        void _do(boost::asio::cancellation_signal &, callback_t);
         std::shared_ptr<session> getptr();
 
-        void async_replay(const uint8_t*, size_t);
+        void async_replay(const uint8_t *, size_t);
         void async_replay(const std::string &str) {
-            async_replay(reinterpret_cast<const uint8_t*>(str.c_str()), str.size());
+            async_replay(reinterpret_cast<const uint8_t *>(str.c_str()), str.size());
         }
 
         std::string to_string() const;
@@ -38,9 +40,11 @@ namespace app {
         boost::asio::io_context context;
         boost::thread_group threads;
         std::shared_ptr<boost_acceptor_t> acceptor;
+        boost::asio::cancellation_signal cancel_signal;
         std::atomic<int> next_index;
         void handle_accept(std::shared_ptr<session>, callback_t, const boost::system::error_code &);
         service();
+
     public:
         ~service();
         //
@@ -50,6 +54,6 @@ namespace app {
         void close();
         void close_wait();
 
-        static service& instance();
+        static service &instance();
     };
 } // namespace app

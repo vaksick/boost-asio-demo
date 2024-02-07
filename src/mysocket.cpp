@@ -53,7 +53,7 @@ void session::async_read(std::shared_ptr<session> self, callback_t callback, con
 }
 
 std::string session::to_string() const {
-    if(streambuf.size() > sizeof(data_length_t)) {
+    if (streambuf.size() > sizeof(data_length_t)) {
         auto begin = boost::asio::buffers_begin(streambuf.data()) + sizeof(data_length_t);
         return std::string(begin, begin + (streambuf.size() - sizeof(data_length_t)));
     } else {
@@ -61,14 +61,13 @@ std::string session::to_string() const {
     }
 }
 
-void session::_do(callback_t callback) {
+void session::_do(boost::asio::cancellation_signal &signal, callback_t callback) {
     using namespace boost::placeholders;
     spdlog::debug(__FUNCTION__);
-    boost::asio::async_read(handle,                                                                       //
-                            streambuf,                                                                    //
-                            boost::bind(&session::async_size_data, this, _1, _2),                         //
-                            boost::bind(&session::async_read, this, shared_from_this(), callback, _1, _2) //
-    );
+    auto asyncSizeDataHandler = boost::asio::bind_cancellation_slot(signal.slot(), boost::bind(&session::async_size_data, this, _1, _2));
+    auto asyncReadHandler = boost::asio::bind_cancellation_slot(signal.slot(), boost::bind(&session::async_read, this, shared_from_this(), callback, _1, _2));
+
+    boost::asio::async_read(handle, streambuf, asyncSizeDataHandler, asyncReadHandler);
 }
 
 void session::async_write(std::shared_ptr<session>, const boost::system::error_code &err, size_t bytes_count) {
@@ -118,6 +117,7 @@ void service::wait() {
 
 void service::close() {
     spdlog::debug(__FUNCTION__);
+    cancel_signal.emit(boost::asio::cancellation_type::all);
     if (acceptor) {
         acceptor->close();
         acceptor.reset();
@@ -135,6 +135,11 @@ void service::bind(int port, callback_t callback, int threads_count) {
     close();
     threads_count = std::max(threads_count, 1);
     acceptor = std::make_shared<boost_acceptor_t>(context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+
+    // auto acceptCompletionHandler = boost::asio::bind_cancellation_slot(cancel_signal.slot(), [this](const auto& e, auto s) {
+    //         //OnAsioAsyncAcceptComplete(e, std::move(s));
+    //         spdlog::debug("{}: bind_cancellation_slot", __FUNCTION__);
+    //     });
 
     for (auto i = 0; i < threads_count; ++i) {
         using namespace boost::placeholders;
@@ -156,7 +161,7 @@ void service::handle_accept(std::shared_ptr<session> handle, callback_t callback
         handle.reset();
     } else {
         try {
-            handle->_do(callback);
+            handle->_do(cancel_signal, callback);
             //
             int index = next_index++;
             handle = std::make_shared<session>(index, context);
