@@ -48,6 +48,15 @@ void session::async_read(std::shared_ptr<session> self, callback_t callback, con
     callback(self);
 }
 
+std::string session::to_string() const {
+    if(streambuf.size() > sizeof(data_length_t)) {
+        auto begin = boost::asio::buffers_begin(streambuf.data()) + sizeof(data_length_t);
+        return std::string(begin, begin + (streambuf.size() - sizeof(data_length_t)));
+    } else {
+        return std::string();
+    }
+}
+
 void session::_do(callback_t callback) {
     using namespace boost::placeholders;
     spdlog::debug(__FUNCTION__);

@@ -15,6 +15,7 @@ int main() {
     try {
         app::service::instance().bind_wait(2001, [](std::shared_ptr<app::session> session){
             spdlog::debug(__FUNCTION__);
+            spdlog::info("message: `{}`", session->to_string());
             session->async_replay("test");
         });
     } catch (const std::exception &ex) {

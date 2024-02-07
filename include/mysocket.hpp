@@ -34,6 +34,8 @@ namespace app {
         void async_replay(const std::string &str) {
             async_replay(reinterpret_cast<const uint8_t*>(str.c_str()), str.size());
         }
+
+        std::string to_string() const;
     };
 
     class service {
