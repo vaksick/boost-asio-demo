@@ -26,10 +26,6 @@ namespace app {
         void _do(callback_t);
         std::shared_ptr<session> getptr();
 
-        std::shared_ptr<session> clone(boost::asio::io_context &context) {
-            return std::make_shared<session>(index, context);
-        }
-
         void async_replay(const uint8_t*, size_t);
         void async_replay(const std::string &str) {
             async_replay(reinterpret_cast<const uint8_t*>(str.c_str()), str.size());
@@ -42,6 +38,7 @@ namespace app {
         boost::asio::io_context context;
         boost::thread_group threads;
         std::shared_ptr<boost_acceptor_t> acceptor;
+        std::atomic<int> next_index;
         void handle_accept(std::shared_ptr<session>, callback_t, const boost::system::error_code &);
         service();
     public:

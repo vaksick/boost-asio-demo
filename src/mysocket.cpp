@@ -133,8 +133,9 @@ void service::bind(int port, callback_t callback, int threads_count, int active_
     active_sockets_count = std::max(active_sockets_count, threads_count);
     acceptor = std::make_shared<boost_acceptor_t>(context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 
-    for (auto index = 0; index < active_sockets_count; ++index) {
+    for (auto i = 0; i < active_sockets_count; ++i) {
         using namespace boost::placeholders;
+        int index = next_index++;
         auto handle = std::make_shared<::app::session>(index, context);
         spdlog::debug("{}:{}: acceptor->async_accept", __FUNCTION__, index);
         acceptor->async_accept(handle->socket(), boost::bind(&service::handle_accept, this, handle, callback, _1));
@@ -154,7 +155,8 @@ void service::handle_accept(std::shared_ptr<session> handle, callback_t callback
         try {
             handle->_do(callback);
             //
-            handle = handle->clone(context);
+            int index = next_index++;
+            handle = std::make_shared<session>(index, context);
             spdlog::debug("{}:{}: acceptor->async_accept", __FUNCTION__, handle->index);
             acceptor->async_accept(handle->socket(), boost::bind(&service::handle_accept, this, handle, callback, _1));
         } catch (const std::exception &ex) {
