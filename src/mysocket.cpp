@@ -131,18 +131,15 @@ void service::close_wait() {
 }
 
 void service::bind(int port, callback_t callback, int threads_count) {
+    using namespace boost::placeholders;
     spdlog::debug(__FUNCTION__);
     close();
     threads_count = std::max(threads_count, 1);
     acceptor = std::make_shared<boost_acceptor_t>(context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 
-    for (auto i = 0; i < threads_count; ++i) {
-        using namespace boost::placeholders;
-        int index = next_index++;
-        auto handle = std::make_shared<::app::session>(index, context);
-        spdlog::debug("{}:{}: acceptor->async_accept", __FUNCTION__, index);
-        acceptor->async_accept(handle->socket(), boost::bind(&service::handle_accept, this, handle, callback, _1));
-    }
+    auto handle = std::make_shared<::app::session>(next_index, context); // next_index == 0
+    spdlog::debug("{}:{}: acceptor->async_accept", __FUNCTION__, next_index);
+    acceptor->async_accept(handle->socket(), boost::bind(&service::handle_accept, this, handle, callback, _1));
 
     for (auto i = 0; i < threads_count; ++i)
         threads.create_thread(boost::bind(&boost::asio::io_context::run, &context));
@@ -153,17 +150,17 @@ void service::handle_accept(std::shared_ptr<session> handle, callback_t callback
     spdlog::debug("{}", __FUNCTION__);
     if (err) {
         spdlog::error("err[{}]: {}", handle->index, err.message());
-        handle.reset();
-    } else {
-        try {
-            handle->_do(cancel_signal, callback);
-            //
-            int index = next_index++;
-            handle = std::make_shared<session>(index, context);
-            spdlog::debug("{}:{}: acceptor->async_accept", __FUNCTION__, handle->index);
-            acceptor->async_accept(handle->socket(), boost::bind(&service::handle_accept, this, handle, callback, _1));
-        } catch (const std::exception &ex) {
-            spdlog::error("{}: {}", __FUNCTION__, ex.what());
-        }
+        return;
+    }
+    try {
+        handle->_do(cancel_signal, callback);
+    } catch (const std::exception &ex) {
+        spdlog::error("{}: {}", __FUNCTION__, ex.what());
+    }
+    if (acceptor->is_open()) {
+        int index = next_index++;
+        handle = std::make_shared<session>(index, context);
+        spdlog::debug("{}:{}: acceptor->async_accept", __FUNCTION__, index);
+        acceptor->async_accept(handle->socket(), boost::bind(&service::handle_accept, this, handle, callback, _1));
     }
 }
