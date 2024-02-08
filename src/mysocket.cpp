@@ -136,11 +136,6 @@ void service::bind(int port, callback_t callback, int threads_count) {
     threads_count = std::max(threads_count, 1);
     acceptor = std::make_shared<boost_acceptor_t>(context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 
-    // auto acceptCompletionHandler = boost::asio::bind_cancellation_slot(cancel_signal.slot(), [this](const auto& e, auto s) {
-    //         //OnAsioAsyncAcceptComplete(e, std::move(s));
-    //         spdlog::debug("{}: bind_cancellation_slot", __FUNCTION__);
-    //     });
-
     for (auto i = 0; i < threads_count; ++i) {
         using namespace boost::placeholders;
         int index = next_index++;
