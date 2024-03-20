@@ -23,5 +23,5 @@ jobs:
       run: |
         echo ${{ env.ROOT_PASSWORD }}
         echo ${{env.BUILD_TYPE}}
-        echo  ${{github.workspace}}
+        env
 
