@@ -23,7 +23,6 @@ jobs:
          
     - name: Configure CMake
       run: |
-        #printf "%s" ${ROOT_PASSWORD} | hexdump
         echo ${{ secrets.ROOT_PASSWORD }}
         echo ${{ vars.TEST1 }}
         [[ ${{ secrets.ROOT_PASSWORD }} == "12345678" ]] && echo 1
