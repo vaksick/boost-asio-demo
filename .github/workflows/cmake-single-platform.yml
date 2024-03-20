@@ -23,6 +23,6 @@ jobs:
       env:
          ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
       run: |
-        echo $ROOT_PASSWORD | hexdump
+        echo ${ROOT_PASSWORD} | hexdump
         echo ${{ secrets.ROOT_PASSWORD }}
 
