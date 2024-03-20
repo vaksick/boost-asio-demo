@@ -21,7 +21,7 @@ jobs:
 
     - name: Configure CMake
       env:
-         ROOT_PASSWORD: ${{ main.ROOT_PASSWORD }}
+         ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
       run: |
         echo $ROOT_PASSWORD
         echo ${{env.BUILD_TYPE}}
