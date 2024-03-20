@@ -6,22 +6,18 @@ on:
   workflow_dispatch:
 
 env:
-  env_var: ${{ vars.ENV_CONTEXT_VAR }}
   BUILD_TYPE: Release
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: ${{ vars.ENVIRONMENT_STAGE }}
 
     steps:
     - uses: actions/checkout@v3
-      with:
-         ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
-      env:
-         ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
          
     - name: Configure CMake
+      env:
+         ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
       run: |
         echo ${ROOT_PASSWORD} | hexdump
         echo ${{ secrets.ROOT_PASSWORD }} | hexdump
