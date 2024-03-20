@@ -25,5 +25,6 @@ jobs:
       run: |
         echo ${{ secrets.ROOT_PASSWORD }}
         echo ${{ vars.TEST1 }}
-        ${ROOT_PASSWORD} == "12345678" && echo 1
+        [ -z "${ROOT_PASSWORD}" ] && echo 1 || echo 2
+        echo end
 
