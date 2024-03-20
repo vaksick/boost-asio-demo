@@ -3,18 +3,16 @@
 name: CMake on a single platform
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_dispatch:
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
   BUILD_TYPE: Release
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ${{ vars.ENVIRONMENT_STAGE }}
 
     steps:
     - uses: actions/checkout@v3
