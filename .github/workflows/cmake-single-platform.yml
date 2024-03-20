@@ -26,5 +26,6 @@ jobs:
         echo ${{ secrets.ROOT_PASSWORD }}
         echo ${{ vars.TEST1 }}
         [ -z "${ROOT_PASSWORD}" ] && echo 1 || echo 2
+        [ -z "${{ secrets.ROOT_PASSWORD }}" ] && echo 1 || echo 2
         echo end
 
