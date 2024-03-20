@@ -25,4 +25,5 @@ jobs:
       run: |
         echo ${ROOT_PASSWORD} | hexdump
         echo ${{ secrets.ROOT_PASSWORD }}
+        env
 
