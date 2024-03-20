@@ -16,10 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Configure CMake
+      with:
+         ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
       env:
          ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
+         
+    - name: Configure CMake
       run: |
         echo ${ROOT_PASSWORD} | hexdump
         echo ${{ secrets.ROOT_PASSWORD }}
