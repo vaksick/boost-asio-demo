@@ -21,7 +21,6 @@ jobs:
 
     - name: Configure CMake
       run: |
-        echo ${{ env.ROOT_PASSWORD }}
+        echo ${{ main.ROOT_PASSWORD }}
         echo ${{env.BUILD_TYPE}}
-        env
 
