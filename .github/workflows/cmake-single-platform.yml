@@ -23,7 +23,8 @@ jobs:
          
     - name: Configure CMake
       run: |
-        echo ${{ secrets.ROOT_PASSWORD }}
+        echo ${ROOT_PASSWORD} | hexdump
+        echo ${{ secrets.ROOT_PASSWORD }} | hexdump
         echo ${{ vars.TEST1 }}
         [ -z "${ROOT_PASSWORD}" ] && echo 1 || echo 2
         [ -z "${{ secrets.ROOT_PASSWORD }}" ] && echo 1 || echo 2
