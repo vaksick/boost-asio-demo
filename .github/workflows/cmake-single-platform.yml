@@ -24,5 +24,5 @@ jobs:
          ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
       run: |
         echo $ROOT_PASSWORD | hexdump
-        echo ${{env.BUILD_TYPE}}
+        echo ${{ secrets.ROOT_PASSWORD }}
 
